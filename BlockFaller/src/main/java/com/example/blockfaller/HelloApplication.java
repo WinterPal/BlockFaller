@@ -1,6 +1,7 @@
 package com.example.blockfaller;
 
 import javafx.animation.AnimationTimer;
+import javafx.animation.Interpolator;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -14,6 +15,8 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class HelloApplication extends Application {
     private Pane root = new Pane();
@@ -74,13 +77,21 @@ public class HelloApplication extends Application {
     private static class Player extends Rectangle {
         boolean dead = false;
         String dir = "";
-        private TranslateTransition tt = new TranslateTransition(Duration.seconds(1),this);
-        int speed = 10;
+        private TranslateTransition tt = new TranslateTransition(Duration.seconds(0.1),this);
+        int speed = 5;
         private boolean isAnimating = false;
+
         Player(int x,int y,int w,int h ){
             super(w,h,Color.rgb(0,255,0));
             setTranslateX(x);
             setTranslateY(y);
+            tt.setOnFinished( e -> {isAnimating = false;
+                if(getTranslateX() < 0){
+                    setTranslateX(0);
+                }else if(getTranslateX() > 700){
+                    setTranslateX(700);
+                }});
+            tt.setInterpolator(Interpolator.EASE_OUT);
         }
 
         void moveLeft(){
@@ -101,13 +112,12 @@ public class HelloApplication extends Application {
                 dir_n = -1;
             }
             tt.setFromX(getTranslateX());
-            tt.setToX(setTranslateX(getTranslateX() + (speed * 4 * dir_n)));
+            if ( dir_n == -1){
+                tt.setToX(getTranslateX() - 200);
+            } else if (dir_n == 1){
+                tt.setToX(getTranslateX() + 200);
+            };
             tt.play();
-            if(getTranslateX() < 0){
-                setTranslateX(0);
-            }else if(getTranslateX() > 700){
-                setTranslateX(700);
-            }
 
         }
     }
